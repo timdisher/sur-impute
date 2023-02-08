@@ -17,7 +17,10 @@ params:
 ---
 
 ```{r setup, include=FALSE, echo = FALSE}
-knitr::opts_chunk$set(echo = FALSE, dev = "svg", warning = FALSE, message = FALSE)
+knitr::opts_chunk$set(echo = FALSE, 
+                      dev = "svg", 
+                      warning = FALSE, 
+                      message = FALSE)
 
 cols <- c("#002F6C", "#ED8B00")
 
@@ -141,7 +144,7 @@ meta-analysis for `r params$out2` therefore giving us the opporyunity to
 provide estimates of relative efficacy for `r params$focal` against
 comparators even though we weren't able to measure it in the trial.
 
-```{r fig.width = 8}
+```{r fig-2, fig.width = 8, cache = TRUE}
 quants <- quantile(samp$sims.list %>% unlist(), probs = c(0.025, 0.5, 0.975))
 tgt <- data.frame(y = s.dat.shared$y[,2], type = "Observed") %>%
   dplyr::mutate(study = 1:dplyr::n(),
