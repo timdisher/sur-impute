@@ -1,0 +1,27 @@
+---
+title: "methods-technical"
+author: "Tim Disher"
+date: "2023-01-30"
+output: html_document
+---
+# Methods
+
+## Daniels and Hughes BRMA model
+
+The Daniels and Hughes Bayesian Random-Effects Meta-Analysis (BRMA) model is a statistical model used to impute missing data in network meta-analyses. The model incorporates both fixed-effect and random-effect components to capture both the between-study and within-study heterogeneity. The model is formulated in a Bayesian framework, which allows for the incorporation of prior information and estimation of model parameters based on a posterior distribution. Mathematically, the Daniels and Hughes BRMA model can be represented as:
+
+$\text{y}{i,j} = \mu + \tau_j + \epsilon{i,j}$
+
+where $\text{y}{i,j}$ is the outcome for the $i^{th}$ study in the $j^{th}$ treatment arm, $\mu$ is the overall mean, $\tau_j$ is the random-effect for the $j^{th}$ treatment arm, and $\epsilon{i,j}$ is the residual error. The model uses Markov Chain Monte Carlo (MCMC) algorithms to estimate the posterior distributions of the model parameters and impute missing data. The Daniels and Hughes BRMA model is widely used due to its ability to accurately impute missing data while accounting for both between-study and within-study heterogeneity.
+
+## Extension to NMA
+
+The Daniels and Hughes Bayesian Random-Effects Meta-Analysis (BRMA) model can be generalized to the multi-treatment context of network meta-analysis (NMA). In NMA, a separate mean, $\mu_k$, and random-effect, $\tau_{j,k}$, are estimated for each treatment contrast, $k$, allowing for the estimation of the relative treatment effects. This generalization is represented mathematically as:
+
+$\text{y}{i,j,k} = \mu_k + \tau{j,k} + \epsilon_{i,j}$
+
+where $\text{y}_{i,j,k}$ is the outcome for the $i^{th}$ study in the $j^{th}$ treatment arm for the $k^{th}$ contrast.
+
+This generalization of the model to the NMA context is important because the relationship between the surrogate and the final outcome can differ depending on the classes or underlying mechanisms of the treatments being compared. By fitting separate means and random-effects for each contrast, the model accounts for these differences and provides more accurate imputations for missing data in NMA.
+
+The Daniels and Hughes BRMA model in the NMA context uses MCMC algorithms to estimate the posterior distributions of the model parameters and impute missing data. The model has been widely used and validated in NMA, providing a robust and flexible solution for addressing missing data in comparative effectiveness research

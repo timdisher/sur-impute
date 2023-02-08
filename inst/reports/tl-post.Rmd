@@ -1,0 +1,183 @@
+---
+title: "Filling the missing spaces in your network meta-analysis: The role of surrogate models"
+output:
+  prettydoc::html_pretty:
+    theme: leonids
+    css: "style.css"
+editor_options: 
+  chunk_output_type: console
+  markdown: 
+    wrap: 72
+bibliography: references.bib
+params:
+  audience: general
+  focal: "Drug C"
+  out1: "progression-free survival"
+  out2: "overall survival"
+---
+
+```{r setup, include=FALSE, echo = FALSE}
+knitr::opts_chunk$set(echo = FALSE, dev = "svg", warning = FALSE, message = FALSE)
+
+cols <- c("#002F6C", "#ED8B00")
+
+
+
+
+```
+
+# Network Meta-Analysis
+
+Network meta-analysis is a statistical method that combines data from
+multiple randomized controlled trials to compare the relative
+effectiveness of different interventions [@tsd2]. This method allows
+researchers to synthesize the results of trials that have evaluated the
+same health outcomes, but have used different treatments or
+interventions. Network meta-analysis provides a comprehensive assessment
+of the available evidence, and offers a robust basis for making clinical
+and policy decisions.  
+
+In network meta-analysis, missing outcome data can pose a challenge when
+the final interpretation relies on comparisons across outcomes that are
+not consistently reported. A common example in oncology may be the case
+of important changes to the definitions of progression free survival
+over time or the reliance of newer agents exclusively on surrogate
+outcomes. The purpose of this article is to introduce how we can address
+this issue by thinking differently about the surrogate meta-analysis
+models.
+
+# Surrogate Models
+
+Surrogate models are most well-known for their role in validating the
+use of surrogate outcomes for decision making by estimating the
+correlation in treatment effects on the surrogate and final outcomes
+[@tsd20]. Surrogate outcomes are commonly used in many disease areas,
+where reliance on a final clinical outcome (eg, overall survival) would
+introduce unreasonable delays in care or, more rarely, when treatment
+decisions that come after the surrogate outcome (eg, post-progression)
+would be expected to meaningfully bias the final clinical outcome to the
+point where robust inference is only possible on the surrogate outcome.
+The focus of surrogate models is typically on the validation of the
+surrogate itself, but they also have a lesser known ability to predict
+missing trial data. Surrogate models work by using the available
+information in the data set to predict the values of the missing data.
+This is done through the use of special meta-analysis models that
+account for the correlation between outcomes.
+
+# Applied example
+
+A new therapy (`r params$focal`) has availability of treatment effect data
+for `r params$out1`, but the effect on outcome `r params$out2` is not
+yet available. We will assume that `r params$focal` is a new drug within
+an existing class. If we assume an NMA will be conducted using hazard
+ratios for both outcomes we can extend the Daniel and Hughes for the NMA
+case [@tsd20]. We will do this in two steps: First we will evaluate
+whether there is evidence that surrogate/outcome relationships are
+stable across treatment classes, and then we will use the model to
+predict the treatment effect on OS for the new therapy.
+
+Evaluating whether we can assume surrogate relationships are stable
+across classes is important because different mechanisms of action may
+imply that the correlation between treatment effects on `r params$out1`
+and `r params$out2` differ across classes. This might happen if one
+class of drugs has more off-target effects or toxicities which allow for
+large effects on progression that shrink when considering OS.
+Alternatively, if we have biological and empirical rational that
+surrogate relationships are stable across classes/contrasts then we can
+get much more precise estimates of that relationship by modeling them as
+shared. The importance of testing this assumption can be seen in
+**Figure 1** where pooling effects over heterogeneous slopes would
+provide a poor fit to the data which would undermine the argument for a
+surrogate relationship while also creating biased predictions.
+
+```{r fig-1, fig.width = 8}
+labs <- glue::glue("Treatment effect on {c(params$out1, params$out2)}")
+
+p1 <- pdat %>%
+  dplyr::mutate(
+    t1 = "Class A",
+    t2 = ifelse(t2 == 2, "Class B", "Class C"),
+    contrast = glue::glue("{t1} v {t2}")
+  ) %>%
+  ggplot2::ggplot(
+    ggplot2::aes(x = V1,
+                 y = V2,
+                 colour = contrast)) +
+  ggplot2::geom_point() +
+  ggplot2::geom_smooth(method = "lm", se = FALSE) +
+  ggplot2::facet_wrap(~panel) +
+  ggplot2::geom_smooth(ggplot2::aes(x = V1, y = V2, linetype = "Pooled Average"),
+                       colour = "black",
+                       method = "lm",
+                       se = FALSE,
+                       inherit.aes = FALSE) +
+  ggplot2::labs(x = labs[[1]],
+                y = labs[[2]],
+                colour = "Treatment Comparison",
+                linetype = "",
+                title = "Figure 1. Importance of assessing shared surrogate relationship assumption",
+                subtitle = "Pooling over heterogeneous slopes can be seriously misleading") +
+  ggplot2::scale_colour_manual(values = cols) +
+  ggplot2::theme_minimal(base_size = 12) +
+  ggplot2::theme(axis.text = ggplot2::element_blank(),
+                 legend.position = "bottom")
+
+p1
+```
+
+Once the assumption of stability has been evaluated, the model can be
+used to impute the missing treatment effect on outcome 2. For the sake
+of illustration let's assume that our data follows the shared slope
+assumption. Since we've simulated the data ourselves, we have the
+ability to make one of the trials having a missing treatment effect on
+OS, and then see how well our model predicts it. Since standard errors
+are assumed known in meta-analysis we need to impute that as well. We'll
+use a simple approach described in @achana2014network for illustrative
+purposes. In **Figure 2** we can look at all of the treatment effects
+our `r params$out2` alongside the known value for the missing
+observation and it's predicted value an 95% credible interval. We can
+subsequently use the mean or median predicted trial result our network
+meta-analysis for `r params$out2` therefore giving us the opporyunity to
+provide estimates of relative efficacy for `r params$focal` against
+comparators even though we weren't able to measure it in the trial.
+
+```{r fig.width = 8}
+quants <- quantile(samp$sims.list %>% unlist(), probs = c(0.025, 0.5, 0.975))
+tgt <- data.frame(y = s.dat.shared$y[,2], type = "Observed") %>%
+  dplyr::mutate(study = 1:dplyr::n(),
+                type = ifelse(study == ind, "Missing", type))  %>%
+  dplyr::arrange(y) %>%
+  dplyr::mutate(newy = 1:dplyr::n())
+
+newind <- tgt %>% dplyr::filter(study == ind) %>% dplyr::pull(newy)
+xlim <- c(min(s.dat.shared$y[,2]), max(s.dat.shared$y[,2]))
+t(quants) %>% as.data.frame() %>%
+  `colnames<-`(c("lower", "med", "upper")) %>%
+  ggplot2::ggplot(ggplot2::aes(xmin = lower, x= med, xmax = upper, y = newind)) +
+  ggplot2::geom_pointrange(linetype = 2, colour = cols[[1]], ggplot2::aes(fill = "Predicted")) +
+  ggplot2::geom_point(ggplot2::aes(x = y, y = newy, colour = type), data = tgt, inherit.aes = FALSE,
+                      size = 2) +
+  ggplot2::theme_minimal() +
+  ggplot2::labs(y = "Study",
+                x = labs[[2]],
+                fill = "",
+                title = "Figure 2. Comparison of Predicted to Target Treatment Effect",
+                colour = "Missing Indicator") +
+  ggplot2::scale_colour_manual(values = rev(c("lightgray", cols[[2]])))
+
+```
+
+# Conclusion
+
+While surrogate models have been traditionally viewed as a tool for evaluating
+the presence of a surrogate-final outcome relationship, they have the potential
+to provide valuable insights in market access problems. By using these models to
+impute missing data we can go beyond simply validating surrogate outcomes and
+instead generate estimates of comparative efficacy that can be leveraged for
+regulatory or health technology assessment applications. In this article we used
+the Daniels and Hughes model due to its simplicity but other options may work
+better in a given application (eg, Multivariate network meta-analysis following
+@achana2014network). This example highlights the importance of considering
+surrogate models as a valuable resource in market access and decision-making.
+
+# References

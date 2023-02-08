@@ -1,0 +1,23 @@
+# Ignore everything
+*
+
+# Except gitignore
+!.gitignore
+
+# Except R files
+!*.R
+!*.md
+!*.Rmd
+!*.html
+!*.txt
+!*.Rproj
+!*.bib
+!*.css
+!*DESCRIPTION
+!*NAMESPACE
+!*.Rbuildignore
+!*renv.lock
+!*.renvignore
+
+# Even if they are in sub-directories
+!*/
