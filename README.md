@@ -6,7 +6,7 @@
 
 The goal of es.mv.nma is to provide a worked example of the validation of generic
 NMA surrogate validation code. Rendered report available here:
-https://timdisher.github.io/sur-impute/inst/reports/2023-02-08_tl-post.html 
+https://timdisher.github.io/sur-impute/inst/reports/2023-02-12_tl-post.html 
 
 # Navigating the package
 
