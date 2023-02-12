@@ -80,7 +80,7 @@ m.dat$se[ind,2] <- NA
 
 iter <- 40000
 burnin <- 20000
-model <- here::here("inst/models/mvprog-shared")
+model <- here::here("inst/models/mvprog-shared.txt")
 
 
 samp <- R2WinBUGS::bugs(

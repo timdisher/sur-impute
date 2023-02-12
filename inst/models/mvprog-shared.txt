@@ -1,0 +1,48 @@
+model{
+  #within study precision matrix
+  #we assume positive within-study correlation but this can be made into an
+  # informative prior based on IPD.
+  for (i in 1:NS) {
+
+    Prec_w[i,1:2,1:2] <- inverse(sigma[i,1:2,1:2])
+
+    #covariance matrix for the j-th study
+    sigma[i,1,1]<-pow(se[i,1],2)
+    sigma[i,2,2]<-pow(se[i,2],2)
+    sigma[i,1,2]<-sqrt(sigma[i,1,1])*sqrt(sigma[i,2,2])*rho_w
+    sigma[i,2,1]<-sqrt(sigma[i,1,1])*sqrt(sigma[i,2,2])*rho_w
+
+
+    se[i,2] ~ dnorm(0, prec.se) I(0,) # input missing standard errors
+  }
+  # Bivariate model for surrogacy:
+  for (i in 1:NS) {
+    y[i,1:2]~dmnorm(delta[i,1:2], Prec_w[i,1:2,1:2]) # within-study model
+
+    # Daniels and Hughes formulation for the between-studies model:
+    delta[i,1]~dnorm(0.0, 0.11)
+    delta[i,2]~dnorm(eta2[i],prec2)
+    eta2[i]<-lambda20[t[i,1],t[i,2]]+lambda21[t[i,1],t[i,2]]*delta[i,1]
+  }
+
+  for (c in 1:(NT-1)) { # priors for all mean treatment effects
+     for (k in (c+1):NT) {
+
+       lambda20[c,k] <- B20
+       lambda21[c,k] <- B21
+     }
+   }
+
+  B20 ~ dnorm(0, 0.11)
+  B21 ~ dnorm(0, 0.11)
+
+  prec.se <- pow(sd, -2)
+  sd ~ dunif(0, 2)
+
+  rho_w~dunif(0,0.999)
+
+  # Common conditional variance across treatments
+  psi.2~dunif(0,2)
+  psi2.sq<-pow(psi.2,2)
+  prec2<-1/psi2.sq
+}
