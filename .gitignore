@@ -21,3 +21,4 @@
 
 # Even if they are in sub-directories
 !*/
+.Rproj.user

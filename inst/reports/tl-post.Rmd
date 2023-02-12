@@ -55,9 +55,9 @@ Surrogate models are most well-known for their role in validating the
 use of surrogate outcomes for decision making by estimating the
 correlation in treatment effects on the surrogate and final outcomes
 [@tsd20]. Surrogate outcomes are commonly used in many disease areas,
-where reliance on a final clinical outcome (eg, overall survival) would
+where reliance on a final clinical outcome (eg, `r params$out2`) would
 introduce unreasonable delays in care or, more rarely, when treatment
-decisions that come after the surrogate outcome (eg, post-progression)
+decisions that come after the surrogate outcome (eg, `r params$out1`)
 would be expected to meaningfully bias the final clinical outcome to the
 point where robust inference is only possible on the surrogate outcome.
 The focus of surrogate models is typically on the validation of the
@@ -73,18 +73,18 @@ A new therapy (`r params$focal`) has availability of treatment effect data
 for `r params$out1`, but the effect on outcome `r params$out2` is not
 yet available. We will assume that `r params$focal` is a new drug within
 an existing class. If we assume an NMA will be conducted using hazard
-ratios for both outcomes we can extend the Daniel and Hughes for the NMA
+ratios for both outcomes we can extend the Daniel and Hughes surrogate model for the NMA
 case [@tsd20]. We will do this in two steps: First we will evaluate
 whether there is evidence that surrogate/outcome relationships are
 stable across treatment classes, and then we will use the model to
-predict the treatment effect on OS for the new therapy.
+predict the treatment effect on `r params$out2` for the new therapy.
 
 Evaluating whether we can assume surrogate relationships are stable
 across classes is important because different mechanisms of action may
 imply that the correlation between treatment effects on `r params$out1`
 and `r params$out2` differ across classes. This might happen if one
 class of drugs has more off-target effects or toxicities which allow for
-large effects on progression that shrink when considering OS.
+large effects on `r params$out1` that shrink when considering `r params$out2`.
 Alternatively, if we have biological and empirical rational that
 surrogate relationships are stable across classes/contrasts then we can
 get much more precise estimates of that relationship by modeling them as
@@ -128,23 +128,23 @@ p1 <- pdat %>%
 p1
 ```
 
-Once the assumption of stability has been evaluated, the model can be
-used to impute the missing treatment effect on outcome 2. For the sake
-of illustration let's assume that our data follows the shared slope
-assumption. Since we've simulated the data ourselves, we have the
-ability to make one of the trials having a missing treatment effect on
-OS, and then see how well our model predicts it. Since standard errors
-are assumed known in meta-analysis we need to impute that as well. We'll
-use a simple approach described in @achana2014network for illustrative
-purposes. In **Figure 2** we can look at all of the treatment effects
-our `r params$out2` alongside the known value for the missing
-observation and it's predicted value an 95% credible interval. We can
-subsequently use the mean or median predicted trial result our network
-meta-analysis for `r params$out2` therefore giving us the opporyunity to
-provide estimates of relative efficacy for `r params$focal` against
-comparators even though we weren't able to measure it in the trial.
+Once the assumption of stability has been evaluated, the model can be used to
+impute the missing treatment effect on `r params$out2`. For the sake of
+illustration let's assume that our data follows the shared slope assumption.
+Since we've simulated the data ourselves, we have the ability to make one of the
+trials have a missing treatment effect on `r params$out2`, and then see how
+well our model predicts it. Since standard errors are assumed known in
+meta-analysis we need to impute that as well. We'll use a simple approach
+described in @achana2014network for illustrative purposes. In **Figure 2** we
+can look at all of the treatment effects for `r params$out2` alongside the known
+value for the missing observation and it's predicted value and 95% credible
+interval. We can subsequently use the mean or median predicted trial result (or
+use a multiple imputation approach) for our network meta-analysis for `r params$out2` 
+therefore giving us the opportunity to provide estimates of relative efficacy
+for `r params$focal` against comparators even though we weren't able to measure
+it in the trial.
 
-```{r fig-2, fig.width = 8, cache = TRUE}
+```{r fig-2, fig.width = 8}
 quants <- quantile(samp$sims.list %>% unlist(), probs = c(0.025, 0.5, 0.975))
 tgt <- data.frame(y = s.dat.shared$y[,2], type = "Observed") %>%
   dplyr::mutate(study = 1:dplyr::n(),
