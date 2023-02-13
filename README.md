@@ -12,7 +12,7 @@ https://timdisher.github.io/sur-impute/inst/reports/2023-02-12_tl-post.html
 
 Packages required for this project can be installed with `renv::install()` which
 should pull from the imports in the DESCRIPTION.txt and install from a Feb 2 2023
-MRAN repo/
+MRAN repo.
 
 # Navigating the package
 
