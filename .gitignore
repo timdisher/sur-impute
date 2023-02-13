@@ -18,6 +18,7 @@
 !*.Rbuildignore
 !*renv.lock
 !*.renvignore
+!*.Rprofile
 
 # Even if they are in sub-directories
 !*/

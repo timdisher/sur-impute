@@ -8,13 +8,18 @@ The goal of es.mv.nma is to provide a worked example of the validation of generi
 NMA surrogate validation code. Rendered report available here:
 https://timdisher.github.io/sur-impute/inst/reports/2023-02-12_tl-post.html 
 
+# Getting rquired packages
+
+Packages required for this project can be installed with `renv::install()` which
+should pull from the imports in the DESCRIPTION.txt and install from a Feb 2 2023
+MRAN repo/
+
 # Navigating the package
 
 The project is set up in package format so functions are generally in R and 
-scripts/reports can be found in inst/. If you're running this package on a system
-where WinBUGS is somewhere else than the programs directory (like me) then you'll
-need to create a .Rprofile and create an "R2WinBUGS.bugs.directory" option that
-points to your BUGS location.
+scripts/reports can be found in inst/. Before running this analysis you'll have
+tup update the .Rprofile "R2WinBUGS.bugs.directory" option to point the the BUGS
+location on your system points to your BUGS location.
 
 ## Generating required data
 

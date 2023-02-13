@@ -14,8 +14,21 @@ RoxygenNote: 7.2.3
 Depends: 
     R (>= 2.10)
 LazyData: true
-Suggests: 
-    testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: 
-    magrittr
+    devtools,
+    dplyr,
+    ggplot2,
+    glue,
+    here,
+    knitr,
+    magrittr,
+    MASS,
+    prettydoc,
+    purrr,
+    R2WinBUGS,
+    rmarkdown,
+    shiny,
+    testthat,
+    tibble,
+    usethis
